@@ -8,5 +8,6 @@ data class Restaurant(
     val name: String,
     val distance: String,
     val bearing: String,
-    val address: Address
+    val address: Address,
+    var isFavorite: Boolean
 )

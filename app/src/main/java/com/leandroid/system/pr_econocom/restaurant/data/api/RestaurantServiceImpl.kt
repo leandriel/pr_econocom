@@ -10,18 +10,37 @@ import io.ktor.client.request.get
 
 class RestaurantServiceImpl (private val client: HttpClient) : RestaurantService {
     private val apiKey = "D64A83177C9B41E1A7AF4F098E74E17A"
-    private val baseUrl = "https://api.content.tripadvisor.com/api/v1/location/nearby_search?"
+    private val baseUrl = "https://api.content.tripadvisor.com/api/v1/location/"
 
-    override suspend fun getRestaurantData(latitude: Double, longitude: Double): ApiResponseData<List<RestaurantResponse>> {
-        val url = buildUrl(latitude, longitude)
-        return client.get(url).body<ApiResponseData<List<RestaurantResponse>>>()
-    }
-
-    private fun buildUrl(latitude: Double, longitude: Double): String {
+    override suspend fun getRestaurants(latitude: Double, longitude: Double): ApiResponseData<List<RestaurantResponse>> {
         val queryParams = listOf(
             "latLong" to "$latitude,$longitude",
             "key" to apiKey
-        )
-        return baseUrl + queryParams.joinToString("&") { (key, value) -> "$key=$value" }
+        ).joinToString("&") { (key, value) -> "$key=$value" }
+
+        val url = baseUrl.plus("nearby_search?").plus(queryParams)
+
+        return client.get(url).body<ApiResponseData<List<RestaurantResponse>>>()
+    }
+
+    override suspend fun getRestaurantsBySearch(text: String): ApiResponseData<List<RestaurantResponse>> {
+        val queryParams = listOf(
+            "key" to apiKey,
+            "searchQuery" to text,
+        ).joinToString("&") { (key, value) -> "$key=$value" }
+
+        val url = baseUrl.plus("search?").plus(queryParams)
+
+        return client.get(url).body<ApiResponseData<List<RestaurantResponse>>>()
+    }
+
+    override suspend fun getRestaurantDetail(locationId: String): ApiResponseData<RestaurantResponse> {
+        val queryParams = listOf(
+            "key" to apiKey,
+        ).joinToString("&") { (key, value) -> "$key=$value" }
+
+        val url = baseUrl.plus(locationId).plus("details?").plus(queryParams)
+
+        return client.get(url).body<ApiResponseData<RestaurantResponse>>()
     }
 }
