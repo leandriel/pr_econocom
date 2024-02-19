@@ -2,10 +2,8 @@ package com.leandroid.system.pr_econocom.restaurant.data.api
 
 import com.leandroid.system.pr_econocom.core.data.ApiResponseData
 import com.leandroid.system.pr_econocom.restaurant.data.model.RestaurantResponse
-import com.leandroid.system.pr_econocom.restaurant.domain.model.Restaurant
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.call.receive
 import io.ktor.client.request.get
 
 class RestaurantServiceImpl (private val client: HttpClient) : RestaurantService {
@@ -34,13 +32,13 @@ class RestaurantServiceImpl (private val client: HttpClient) : RestaurantService
         return client.get(url).body<ApiResponseData<List<RestaurantResponse>>>()
     }
 
-    override suspend fun getRestaurantDetail(locationId: String): ApiResponseData<RestaurantResponse> {
+    override suspend fun getRestaurantDetail(locationId: String): RestaurantResponse {
         val queryParams = listOf(
             "key" to apiKey,
         ).joinToString("&") { (key, value) -> "$key=$value" }
 
-        val url = baseUrl.plus(locationId).plus("details?").plus(queryParams)
+        val url = baseUrl.plus("$locationId/details?").plus(queryParams)
 
-        return client.get(url).body<ApiResponseData<RestaurantResponse>>()
+        return client.get(url).body<RestaurantResponse>()
     }
 }

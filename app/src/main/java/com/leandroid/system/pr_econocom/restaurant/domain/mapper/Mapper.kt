@@ -1,7 +1,6 @@
 package com.leandroid.system.pr_econocom.restaurant.domain.mapper
 
 import com.leandroid.system.pr_econocom.restaurant.data.model.AddressResponse
-import com.leandroid.system.pr_econocom.restaurant.data.model.DetailResponse
 import com.leandroid.system.pr_econocom.restaurant.data.model.RestaurantResponse
 import com.leandroid.system.pr_econocom.restaurant.domain.model.Address
 import com.leandroid.system.pr_econocom.restaurant.domain.model.Restaurant

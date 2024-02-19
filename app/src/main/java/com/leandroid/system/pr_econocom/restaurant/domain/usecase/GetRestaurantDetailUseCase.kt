@@ -8,12 +8,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 class GetRestaurantDetailUseCase(private val repository: RestaurantRepository) :
-    BaseUseCase<GetRestaurantDetailUseCase.Params, Flow<ResponseStatus<Restaurant?>>> {
-    data class Params(val locationId: String)
-
-    override suspend fun execute(param: Params): Flow<ResponseStatus<Restaurant?>> = flow {
+    BaseUseCase<String, Flow<ResponseStatus<Restaurant?>>> {
+    override suspend fun execute(param: String): Flow<ResponseStatus<Restaurant?>> = flow {
         emit(ResponseStatus.Loading(true))
-        val result = repository.getRestaurantDetail(param.locationId)
+        val result = repository.getRestaurantDetail(param)
         emit(result)
         emit(ResponseStatus.Loading(false))
     }

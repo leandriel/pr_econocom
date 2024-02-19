@@ -72,11 +72,7 @@ class RestaurantViewModel(
 
     private fun getRestaurantsDetail(locationId: String) {
         viewModelScope.launch {
-            getRestaurantDetail.execute(
-                GetRestaurantDetailUseCase.Params(
-                    locationId
-                )
-            ).collect { result ->
+            getRestaurantDetail.execute(locationId).collect { result ->
                 when (result) {
                     is ResponseStatus.Loading -> handleLoading(result.loading)
                     is ResponseStatus.Success -> {

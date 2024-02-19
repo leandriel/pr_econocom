@@ -5,7 +5,6 @@ import com.leandroid.system.pr_econocom.restaurant.data.api.RestaurantService
 import com.leandroid.system.pr_econocom.restaurant.domain.mapper.toRestaurant
 import com.leandroid.system.pr_econocom.restaurant.domain.model.Restaurant
 import com.leandroid.system.pr_econocom.restaurant.domain.respository.RestaurantRepository
-import io.ktor.utils.io.printStack
 
 class RestaurantRepositoryImpl  (
     private val restaurantService: RestaurantService
@@ -25,7 +24,7 @@ class RestaurantRepositoryImpl  (
     }
     override suspend fun getRestaurantDetail(locationId : String): ResponseStatus<Restaurant?> = try {
         val response = restaurantService.getRestaurantDetail(locationId)
-        ResponseStatus.Success(response.data?.toRestaurant() ?: null)
+        ResponseStatus.Success(response?.toRestaurant())
     } catch (e: Exception) {
         ResponseStatus.Failure(e)
     }

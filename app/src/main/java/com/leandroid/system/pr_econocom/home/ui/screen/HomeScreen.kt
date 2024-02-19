@@ -9,9 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -27,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.leandroid.system.pr_econocom.core.data.LocationProvider
@@ -40,13 +36,12 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(
     restaurantViewModel: RestaurantViewModel = koinViewModel(),
-    locationId: String? = null,
     goToDetail : (String) -> Unit
 ) {
 
     val restaurantState by restaurantViewModel.state.collectAsState()
     val context = LocalContext.current
-
+    var location: Location? = null
     var selectedTab by remember { mutableStateOf(0) }
     var searchString by remember { mutableStateOf("") }
     val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -55,8 +50,14 @@ fun HomeScreen(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            getLocation(context){
-                restaurantViewModel.emitEvent(RestaurantEvents.GetRestaurants(it.latitude, it.longitude))
+            getLocation(context) {
+                location = it
+                restaurantViewModel.emitEvent(
+                    RestaurantEvents.GetRestaurants(
+                        it.latitude,
+                        it.longitude
+                    )
+                )
             }
         } else {
             // Show dialog
@@ -66,8 +67,14 @@ fun HomeScreen(
     LaunchedEffect(Unit){
         val permissionCheckResult = ContextCompat.checkSelfPermission(context, permission)
         if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-            getLocation(context){
-                restaurantViewModel.emitEvent(RestaurantEvents.GetRestaurants(it.latitude, it.longitude))
+            getLocation(context) {
+                location = it
+                restaurantViewModel.emitEvent(
+                    RestaurantEvents.GetRestaurants(
+                        it.latitude,
+                        it.longitude
+                    )
+                )
             }
         } else {
             launcher.launch(permission)
@@ -75,7 +82,14 @@ fun HomeScreen(
     }
 
     LaunchedEffect(searchString){
-        if(searchString.length > 3){
+        if (searchString.isEmpty()) {
+            restaurantViewModel.emitEvent(
+                RestaurantEvents.GetRestaurants(
+                    location?.latitude ?: 0.0,
+                    location?.longitude ?: 0.0
+                )
+            )
+        } else if (searchString.length > 3) {
             restaurantViewModel.emitEvent(RestaurantEvents.GetRestaurantBySearch(searchString))
         }
     }
@@ -121,9 +135,12 @@ fun HomeScreen(
                 }
             }
             when (selectedTab) {
-                0 -> RestaurantScreen(locationId, restaurantState, onFavorite = {
-                    restaurantViewModel.emitEvent(RestaurantEvents.Favorites(it))
-                }, goToDetail)
+                0 -> RestaurantScreen(
+                    restaurantState,
+                    onFavorite = {
+                        restaurantViewModel.emitEvent(RestaurantEvents.Favorites(it))
+                    }, goToDetail
+                )
                 1 -> FavoritesScreen(favorites = restaurantState.favorites)
             }
         }

@@ -7,9 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.leandroid.system.pr_econocom.home.ui.screen.HomeScreen
-import com.leandroid.system.pr_econocom.restaurant.ui.presentation.RestaurantState
 import com.leandroid.system.pr_econocom.restaurant.ui.screen.DetailScreen
-import com.leandroid.system.pr_econocom.restaurant.ui.screen.RestaurantScreen
 
 @Composable
 fun Navigation(navController: NavHostController) {
@@ -18,19 +16,22 @@ fun Navigation(navController: NavHostController) {
         startDestination = Screen.Home.route,
 
 
-    ) {
+        ) {
         composable(Screen.Home.route) {
-            HomeScreen(goToDetail = {navController.navigate(Screen.Detail.route)})
+            HomeScreen(goToDetail = { locationId ->
+                navController.navigate(Screen.Detail.route.replace("{locationId}", locationId))
+            })
         }
-        composable(Screen.Detail.route) {
-            DetailScreen(onBack = {navController.popBackStack()})
-        }
-        composable(route = Screen.Detail.route,
+        composable(
+            Screen.Detail.route,
             arguments = listOf(navArgument("locationId") {
-                type = NavType.IntType
-            })) {
+                type = NavType.StringType
+            })
+        ) {
             val locationId = it.arguments?.getString("locationId") ?: ""
-            HomeScreen(goToDetail = {navController.navigate(Screen.Detail.route)}, locationId = locationId)
+            DetailScreen(
+                locationId = locationId, onBack = { navController.popBackStack() }
+            )
         }
     }
 }
